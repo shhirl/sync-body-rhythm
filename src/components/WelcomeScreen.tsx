@@ -86,9 +86,6 @@ export function WelcomeScreen({ onGetStarted }: WelcomeScreenProps) {
             >
               Get Your Recovery Plan
             </Button>
-            <p className="text-sm text-muted-foreground">
-              Currently featuring Swiss Flight LX64 (Zurich → Miami)
-            </p>
           </div>
         </div>
       </div>
