@@ -127,7 +127,7 @@ export function calculateRecoveryPlan(flight: FlightData, userProfile: UserProfi
   
   return {
     route: `${flight.departure.airport}-${flight.arrival.airport}`,
-    timeOffset: offsetHours * (arrMatch && depMatch ? (parseInt(arrMatch[1]) - parseInt(depMatch[1])) : 1),
+    timeOffset: arrMatch && depMatch ? (parseInt(arrMatch[1]) - parseInt(depMatch[1])) : 0,
     recommendations: {
       exercise: exerciseRecommendations,
       sleep: sleepRecommendations,
