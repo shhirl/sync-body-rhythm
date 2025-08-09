@@ -7,6 +7,7 @@ import { User, Activity, Heart, Moon } from 'lucide-react';
 
 interface UserProfileFormProps {
   onSubmit: (profile: UserProfile) => void;
+  onBack?: () => void;
 }
 
 const fitnessLevels = [
@@ -24,7 +25,7 @@ const healthConditions = [
   'Other'
 ];
 
-export function UserProfileForm({ onSubmit }: UserProfileFormProps) {
+export function UserProfileForm({ onSubmit, onBack }: UserProfileFormProps) {
   const [fitnessLevel, setFitnessLevel] = useState<UserProfile['fitnessLevel']>('Beginner');
   const [selectedConditions, setSelectedConditions] = useState<string[]>(['None']);
 
@@ -124,7 +125,17 @@ export function UserProfileForm({ onSubmit }: UserProfileFormProps) {
           </CardContent>
         </Card>
 
-        <div className="text-center animate-gentle-bounce">
+        <div className="flex gap-4 justify-center animate-gentle-bounce">
+          {onBack && (
+            <Button
+              variant="wellness-outline"
+              size="xl"
+              onClick={onBack}
+              className="px-12"
+            >
+              Back to Flight
+            </Button>
+          )}
           <Button
             variant="wellness"
             size="xl"
