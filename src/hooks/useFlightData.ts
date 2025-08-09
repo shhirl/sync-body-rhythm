@@ -1,11 +1,5 @@
 import { useState } from 'react';
 import { FlightData } from '@/types';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL!,
-  import.meta.env.VITE_SUPABASE_ANON_KEY!
-);
 
 export const useFlightData = () => {
   const [loading, setLoading] = useState(false);
@@ -16,13 +10,19 @@ export const useFlightData = () => {
     setError(null);
 
     try {
-      const { data, error: functionError } = await supabase.functions.invoke('fetch-flight-data', {
-        body: { flightNumber, date }
+      const response = await fetch('/api/fetch-flight-data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ flightNumber, date })
       });
 
-      if (functionError) {
-        throw new Error(functionError.message);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+
+      const data = await response.json();
 
       if (data.error) {
         throw new Error(data.error);
