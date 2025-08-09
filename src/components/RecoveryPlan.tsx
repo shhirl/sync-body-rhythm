@@ -3,17 +3,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { RecoveryPlan as RecoveryPlanType } from '@/types';
+import { RecoveryPlan as RecoveryPlanType, FlightData } from '@/types';
 import { FlightInfo } from './FlightInfo';
 import { Activity, Moon, Sun, Clock, Info } from 'lucide-react';
-import { LX64_FLIGHT } from '@/data/flightData';
 
 interface RecoveryPlanProps {
   plan: RecoveryPlanType;
+  flight: FlightData;
   onBack: () => void;
 }
 
-export function RecoveryPlan({ plan, onBack }: RecoveryPlanProps) {
+export function RecoveryPlan({ plan, flight, onBack }: RecoveryPlanProps) {
   const getIntensityColor = (intensity: string) => {
     switch (intensity) {
       case 'Light': return 'bg-green-100 text-green-800';
@@ -41,7 +41,7 @@ export function RecoveryPlan({ plan, onBack }: RecoveryPlanProps) {
           <div className="w-24" />
         </div>
 
-        <FlightInfo flight={LX64_FLIGHT} timeOffset={plan.timeOffset} />
+        <FlightInfo flight={flight} timeOffset={plan.timeOffset} />
 
         <Tabs defaultValue="exercise" className="w-full">
           <TabsList className="grid w-full grid-cols-3 bg-white/90 backdrop-blur-sm">

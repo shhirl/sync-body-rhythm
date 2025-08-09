@@ -58,7 +58,7 @@ export function FlightInputForm({ onSubmit }: FlightInputFormProps) {
       return;
     }
 
-    // Combine date and time for ISO string
+    // Combine date and time for ISO string with timezone offset
     const depDateTime = new Date(departureDate);
     const [depHour, depMin] = departureTime.split(':');
     depDateTime.setHours(parseInt(depHour), parseInt(depMin));
@@ -67,19 +67,28 @@ export function FlightInputForm({ onSubmit }: FlightInputFormProps) {
     const [arrHour, arrMin] = arrivalTime.split(':');
     arrDateTime.setHours(parseInt(arrHour), parseInt(arrMin));
 
+    // Get timezone offset in proper format
+    const getTimezoneOffset = (date: Date) => {
+      const offset = -date.getTimezoneOffset();
+      const hours = Math.floor(Math.abs(offset) / 60);
+      const minutes = Math.abs(offset) % 60;
+      const sign = offset >= 0 ? '+' : '-';
+      return `${sign}${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    };
+
     const manualFlight: FlightData = {
       flightNumber: `${departureAirport}-${arrivalAirport}`,
       departure: {
         city: departureAirport,
         airport: departureAirport,
-        time: depDateTime.toISOString(),
-        timezone: 'UTC' // Simplified for MVP
+        time: `${depDateTime.getFullYear()}-${(depDateTime.getMonth() + 1).toString().padStart(2, '0')}-${depDateTime.getDate().toString().padStart(2, '0')}T${depDateTime.getHours().toString().padStart(2, '0')}:${depDateTime.getMinutes().toString().padStart(2, '0')}:00${getTimezoneOffset(depDateTime)}`,
+        timezone: 'Local'
       },
       arrival: {
         city: arrivalAirport,
         airport: arrivalAirport,
-        time: arrDateTime.toISOString(),
-        timezone: 'UTC' // Simplified for MVP
+        time: `${arrDateTime.getFullYear()}-${(arrDateTime.getMonth() + 1).toString().padStart(2, '0')}-${arrDateTime.getDate().toString().padStart(2, '0')}T${arrDateTime.getHours().toString().padStart(2, '0')}:${arrDateTime.getMinutes().toString().padStart(2, '0')}:00${getTimezoneOffset(arrDateTime)}`,
+        timezone: 'Local'
       }
     };
     onSubmit(manualFlight);
@@ -143,7 +152,7 @@ export function FlightInputForm({ onSubmit }: FlightInputFormProps) {
                   id="flight-number"
                   value={flightNumber}
                   onChange={(e) => setFlightNumber(e.target.value)}
-                  placeholder="LX64"
+                  placeholder="E.g. LX64"
                   className="mt-1"
                 />
               </div>
@@ -182,7 +191,7 @@ export function FlightInputForm({ onSubmit }: FlightInputFormProps) {
                       id="departure-airport"
                       value={departureAirport}
                       onChange={(e) => setDepartureAirport(e.target.value.toUpperCase())}
-                      placeholder="ZRH"
+                      placeholder="E.g. ZRH"
                       maxLength={3}
                       className="mt-1"
                     />
@@ -239,7 +248,7 @@ export function FlightInputForm({ onSubmit }: FlightInputFormProps) {
                       id="arrival-airport"
                       value={arrivalAirport}
                       onChange={(e) => setArrivalAirport(e.target.value.toUpperCase())}
-                      placeholder="MIA"
+                      placeholder="E.g. MIA"
                       maxLength={3}
                       className="mt-1"
                     />

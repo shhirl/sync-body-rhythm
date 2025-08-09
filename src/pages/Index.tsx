@@ -53,7 +53,7 @@ const Index = () => {
   }
 
   if (currentStep === 'plan' && recoveryPlan) {
-    return <RecoveryPlan plan={recoveryPlan} onBack={handleBackToProfile} />;
+    return <RecoveryPlan plan={recoveryPlan} flight={flightData} onBack={handleBackToProfile} />;
   }
 
   return null;
