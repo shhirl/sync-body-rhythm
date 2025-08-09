@@ -1,14 +1,46 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import React, { useState } from 'react';
+import { WelcomeScreen } from '@/components/WelcomeScreen';
+import { UserProfileForm } from '@/components/UserProfileForm';
+import { RecoveryPlan } from '@/components/RecoveryPlan';
+import { UserProfile, RecoveryPlan as RecoveryPlanType } from '@/types';
+import { LX64_FLIGHT } from '@/data/flightData';
+import { calculateRecoveryPlan } from '@/utils/circadianAlgorithm';
+
+type AppStep = 'welcome' | 'profile' | 'plan';
 
 const Index = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
-  );
+  const [currentStep, setCurrentStep] = useState<AppStep>('welcome');
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [recoveryPlan, setRecoveryPlan] = useState<RecoveryPlanType | null>(null);
+
+  const handleGetStarted = () => {
+    setCurrentStep('profile');
+  };
+
+  const handleProfileSubmit = (profile: UserProfile) => {
+    setUserProfile(profile);
+    const plan = calculateRecoveryPlan(LX64_FLIGHT, profile);
+    setRecoveryPlan(plan);
+    setCurrentStep('plan');
+  };
+
+  const handleBackToProfile = () => {
+    setCurrentStep('profile');
+  };
+
+  if (currentStep === 'welcome') {
+    return <WelcomeScreen onGetStarted={handleGetStarted} />;
+  }
+
+  if (currentStep === 'profile') {
+    return <UserProfileForm onSubmit={handleProfileSubmit} />;
+  }
+
+  if (currentStep === 'plan' && recoveryPlan) {
+    return <RecoveryPlan plan={recoveryPlan} onBack={handleBackToProfile} />;
+  }
+
+  return null;
 };
 
 export default Index;
