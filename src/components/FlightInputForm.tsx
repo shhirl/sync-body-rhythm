@@ -9,6 +9,8 @@ import { FlightData } from '@/types';
 import { Plane, MapPin, Calendar as CalendarIcon, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { useFlightData } from '@/hooks/useFlightData';
+import { useToast } from '@/hooks/use-toast';
 
 interface FlightInputFormProps {
   onSubmit: (flight: FlightData) => void;
@@ -18,16 +20,28 @@ type InputMode = 'flight-number' | 'manual';
 
 export function FlightInputForm({ onSubmit }: FlightInputFormProps) {
   const [inputMode, setInputMode] = useState<InputMode>('flight-number');
-  const [flightNumber, setFlightNumber] = useState('LX64');
+  const [flightNumber, setFlightNumber] = useState('');
   
   // Manual entry states
   const [departureAirport, setDepartureAirport] = useState('');
   const [arrivalAirport, setArrivalAirport] = useState('');
   const [departureDateTime, setDepartureDateTime] = useState('');
   const [arrivalDateTime, setArrivalDateTime] = useState('');
+  
+  const { fetchFlightData, loading, error } = useFlightData();
+  const { toast } = useToast();
 
-  const handleFlightNumberSubmit = () => {
-    // For MVP, only LX64 is supported
+  const handleFlightNumberSubmit = async () => {
+    if (!flightNumber.trim()) {
+      toast({
+        title: "Flight number required",
+        description: "Please enter a flight number",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check for hardcoded demo flight LX64
     if (flightNumber.toUpperCase() === 'LX64') {
       const lx64Flight: FlightData = {
         flightNumber: 'LX64',
@@ -45,8 +59,31 @@ export function FlightInputForm({ onSubmit }: FlightInputFormProps) {
         }
       };
       onSubmit(lx64Flight);
-    } else {
-      alert('Currently only flight LX64 is supported in MVP version');
+      return;
+    }
+
+    // Try to fetch real flight data
+    try {
+      const flightData = await fetchFlightData(flightNumber);
+      if (flightData) {
+        toast({
+          title: "Flight found!",
+          description: `Found ${flightNumber} from ${flightData.departure.airport} to ${flightData.arrival.airport}`,
+        });
+        onSubmit(flightData);
+      } else {
+        toast({
+          title: "Flight not found",
+          description: "Please check the flight number or use manual entry.",
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Error fetching flight data",
+        description: error || "Please try again or use manual entry.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -154,8 +191,9 @@ export function FlightInputForm({ onSubmit }: FlightInputFormProps) {
                 size="lg"
                 onClick={handleFlightNumberSubmit}
                 className="w-full"
+                disabled={loading}
               >
-                Continue with Flight {flightNumber}
+                {loading ? 'Searching Flight...' : flightNumber ? `Continue with Flight ${flightNumber}` : 'Search Flight'}
               </Button>
             </CardContent>
           </Card>
