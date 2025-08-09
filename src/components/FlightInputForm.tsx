@@ -23,10 +23,8 @@ export function FlightInputForm({ onSubmit }: FlightInputFormProps) {
   // Manual entry states
   const [departureAirport, setDepartureAirport] = useState('');
   const [arrivalAirport, setArrivalAirport] = useState('');
-  const [departureDate, setDepartureDate] = useState<Date>();
-  const [departureTime, setDepartureTime] = useState('');
-  const [arrivalDate, setArrivalDate] = useState<Date>();
-  const [arrivalTime, setArrivalTime] = useState('');
+  const [departureDateTime, setDepartureDateTime] = useState('');
+  const [arrivalDateTime, setArrivalDateTime] = useState('');
 
   const handleFlightNumberSubmit = () => {
     // For MVP, only LX64 is supported
@@ -53,19 +51,14 @@ export function FlightInputForm({ onSubmit }: FlightInputFormProps) {
   };
 
   const handleManualSubmit = () => {
-    if (!departureAirport || !arrivalAirport || !departureDate || !departureTime || !arrivalDate || !arrivalTime) {
+    if (!departureAirport || !arrivalAirport || !departureDateTime || !arrivalDateTime) {
       alert('Please fill in all fields');
       return;
     }
 
-    // Combine date and time for ISO string with timezone offset
-    const depDateTime = new Date(departureDate);
-    const [depHour, depMin] = departureTime.split(':');
-    depDateTime.setHours(parseInt(depHour), parseInt(depMin));
-
-    const arrDateTime = new Date(arrivalDate);
-    const [arrHour, arrMin] = arrivalTime.split(':');
-    arrDateTime.setHours(parseInt(arrHour), parseInt(arrMin));
+    // Parse datetime-local input values
+    const depDateTime = new Date(departureDateTime);
+    const arrDateTime = new Date(arrivalDateTime);
 
     // Get timezone offset in proper format
     const getTimezoneOffset = (date: Date) => {
@@ -142,7 +135,7 @@ export function FlightInputForm({ onSubmit }: FlightInputFormProps) {
             <CardHeader>
               <CardTitle>Flight Number</CardTitle>
               <CardDescription>
-                Enter your flight number (LX64 available for MVP)
+                Enter your flight number
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -197,41 +190,15 @@ export function FlightInputForm({ onSubmit }: FlightInputFormProps) {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="departure-time">Time</Label>
+                    <Label htmlFor="departure-datetime">Date & Time</Label>
                     <Input
-                      id="departure-time"
-                      type="time"
-                      value={departureTime}
-                      onChange={(e) => setDepartureTime(e.target.value)}
+                      id="departure-datetime"
+                      type="datetime-local"
+                      value={departureDateTime}
+                      onChange={(e) => setDepartureDateTime(e.target.value)}
                       className="mt-1"
                     />
                   </div>
-                </div>
-                <div>
-                  <Label>Date</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal mt-1",
-                          !departureDate && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {departureDate ? format(departureDate, "PPP") : <span>Pick departure date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={departureDate}
-                        onSelect={setDepartureDate}
-                        initialFocus
-                        className="p-3 pointer-events-auto"
-                      />
-                    </PopoverContent>
-                  </Popover>
                 </div>
               </div>
 
@@ -254,41 +221,15 @@ export function FlightInputForm({ onSubmit }: FlightInputFormProps) {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="arrival-time">Time</Label>
+                    <Label htmlFor="arrival-datetime">Date & Time</Label>
                     <Input
-                      id="arrival-time"
-                      type="time"
-                      value={arrivalTime}
-                      onChange={(e) => setArrivalTime(e.target.value)}
+                      id="arrival-datetime"
+                      type="datetime-local"
+                      value={arrivalDateTime}
+                      onChange={(e) => setArrivalDateTime(e.target.value)}
                       className="mt-1"
                     />
                   </div>
-                </div>
-                <div>
-                  <Label>Date</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal mt-1",
-                          !arrivalDate && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {arrivalDate ? format(arrivalDate, "PPP") : <span>Pick arrival date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={arrivalDate}
-                        onSelect={setArrivalDate}
-                        initialFocus
-                        className="p-3 pointer-events-auto"
-                      />
-                    </PopoverContent>
-                  </Popover>
                 </div>
               </div>
 
