@@ -4,10 +4,18 @@ export function calculateRecoveryPlan(flight: FlightData, userProfile: UserProfi
   const departureTime = new Date(flight.departure.time);
   const arrivalTime = new Date(flight.arrival.time);
   
-  // Calculate time zone offset in hours
-  const offsetHours = Math.abs(
-    (arrivalTime.getTimezoneOffset() - departureTime.getTimezoneOffset()) / 60
-  );
+  // Calculate time zone offset in hours using actual timezone strings
+  let offsetHours = 0;
+  
+  // Parse timezone offsets from the ISO strings
+  const depMatch = flight.departure.time.match(/([+-]\d{2}):?(\d{2})$/);
+  const arrMatch = flight.arrival.time.match(/([+-]\d{2}):?(\d{2})$/);
+  
+  if (depMatch && arrMatch) {
+    const depOffset = parseInt(depMatch[1]) + parseInt(depMatch[2]) / 60;
+    const arrOffset = parseInt(arrMatch[1]) + parseInt(arrMatch[2]) / 60;
+    offsetHours = Math.abs(arrOffset - depOffset);
+  }
   
   const offsetSeconds = offsetHours * 3600;
   const arrivalHour = arrivalTime.getHours();
@@ -119,7 +127,7 @@ export function calculateRecoveryPlan(flight: FlightData, userProfile: UserProfi
   
   return {
     route: `${flight.departure.airport}-${flight.arrival.airport}`,
-    timeOffset: offsetHours * (arrivalTime.getTimezoneOffset() > departureTime.getTimezoneOffset() ? -1 : 1),
+    timeOffset: offsetHours * (arrMatch && depMatch ? (parseInt(arrMatch[1]) - parseInt(depMatch[1])) : 1),
     recommendations: {
       exercise: exerciseRecommendations,
       sleep: sleepRecommendations,
